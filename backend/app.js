@@ -1,6 +1,21 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const stuffRoutes = require('./routes/stuff');
+const userRoutes = require('./routes/user');
 
 const app = express();
+app.use(express.json());
+
+
+mongoose.connect('mongodb+srv://ocrtestun:sarahwalker1@cluster0.zfqbw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log('Connexion à MongoDB réussie !'))
+  .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,6 +23,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
+
 
 app.use('/api/stuff', (req, res, next) => {
   const stuff = [
@@ -44,5 +60,10 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   console.log('Réponse envoyée avec succès !');
 });
+
+
+app.use(bodyParser.json());
+// app.use('/api/sauce', stuffRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;
