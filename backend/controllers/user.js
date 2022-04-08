@@ -2,6 +2,9 @@ const bcrypt = require("bcrypt");
 
 const User = require('../models/User');
 
+let jwt = require("jsonwebtoken");
+require('dotenv').config();
+
 
 
 exports.signup = (req, res, next) => {
@@ -33,10 +36,26 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             userId: user._id,
-            token: 'TOKEN'
+            token: process.env.TOKEN_KEY
           });
         })
         .catch(error => res.status(500).json({ error }));
     })
     .catch(error => res.status(500).json({ error }));
 };
+
+
+
+// exports.login = (req, res) => {
+//   if (req.body.email == "gerarddeux@gmail.com" && req.body.password == "aaa") {
+//     let token = jwt.sign({ userId: 10 }, process.env.TOKEN_KEY);
+//     res.status(200).json({ token });
+//   } else {
+//     res.status(401).json({ message: "Login ou mot de pass incorrect" })
+//   }
+// }
+
+
+// exports.test = (req, res) => {
+//   res.status(200).json({ message: "vous êtes authentifié" });
+// }
