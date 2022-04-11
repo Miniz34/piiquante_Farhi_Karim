@@ -9,8 +9,8 @@ exports.createSauce = (req, res, next) => {
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     likes: 0,
     dislikes: 0,
-    usersLiked: "",
-    usersDisliked: ""
+    usersLiked: [],
+    usersDisliked: []
   });
   createSauce.save()
     .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
@@ -79,58 +79,101 @@ exports.likeSauce = (req, res, next) => {
   const like = req.body.like;
   const userId = req.body.userId;
   const sauceId = req.params.id;
-  if (like === 0) {
-    sauce.findOne({ _id: req.params.id })
-      .then(sauce => {
-        usersLiked = userId;
-        // sauceId.like = sauceId.like++;
-        likes = +1
 
-      })
-      .then(() => res.status(200).json({ message: "like" }))
-      .catch(() => res.status(400).json({ message: "vous likez déjà ce produit" }))
-  } else if (like === 0) {
-    sauce.findOne({ _id: req.params.id })
-      .then(sauce => {
-        usersliked = userId;
-        likes = -1;
-        // sauceId.like = sauceId.like--;
-      })
-      .then(() => res.status(200).json({ message: "dislike" }))
-      .catch(() => res.status(400).json({ message: "vous dislikez déjà ce produit" }))
-  } else if (like === -1) {
-    sauce.findOne({ _id: req.params.id })
-      .then(sauce => {
-        usersDisliked = userId;
-        dislikes = -1;
-        // sauceId.like = sauceId.like--;
-      })
-      .then(() => res.status(200).json({ message: "dislike" }))
-      .catch(() => res.status(400).json({ message: "vous dislikez déjà ce produit" }))
+
+  if (like === 1) {
+    sauce.updateOne(
+      { _id: sauceId },
+      {
+        $push: { usersLiked: userId },
+        $inc: { likes: +1 }
+      }
+
+    )
+      .then(() => res.status(200).json({
+        message: 'like ajouté'
+      }))
+      .catch((error) => res.status(400).json({
+        error
+      }))
+  } if (like === -1) {
+    sauce.updateOne(
+      { _id: sauceId },
+      {
+        $push: { usersDisliked: userId },
+        $inc: { dislikes: +1 }
+      }
+    )
+      .then(() => res.status(200).json({
+        message: 'disliked ajouté !'
+      }))
+      .catch((error) => res.status(400).json({
+        error
+      }))
+  } if (like === 0) {
+    sauce.findOne({
+      _id: req.params.id
+    })
+      .then((sauce) => {
+        if (sauce.usersLiked.includes(userId)) {
+
+          sauce.updateOne(
+            { _id: sauceId },
+            { $pull: { usersLiked: { $in: [userId] } } },
+            { $inc: { likes: -1 } }
+
+
+          )
+            .then(() => res.status(200).json({
+              message: 'like supprimé !'
+            }))
+            .catch((error) => res.status(400).json({
+              error
+            }))
+        } if (sauce.usersDisliked.includes(userId)) {
+
+          sauce.updateOne(
+            { _id: sauceId },
+            {
+              $pull: { usersDisliked: userId },
+              $inc: { dislikes: -1 }
+            }
+          )
+            .then(() => res.status(200).json({
+              message: 'dislike supprimé !'
+            }))
+            .catch((error) => res.status(400).json({
+              error
+            }))
+        }
+      }
+      )
+      .catch((error) => res.status(404).json({
+        error
+      }))
   }
-
-};
-
-
-// exports.likeSauce = (req, res, next) => {
-//   // Pour la route READ = Ajout/suppression d'un like / dislike à une sauce
-//   // Like présent dans le body
-//   let like = req.body.like
-//   // On prend le userID
-//   let userId = req.body.userId
-//   // On prend l'id de la sauce
-//   let sauceId = req.params.id
-
-//   if (like === 1) {
-//     sauce.findOne({ _id: req.params.id })
-//       .then(sauce => {
-//         usersLiked = 1;
-//       })
-//       .then(() => res.status(200).json({ message: "like" }))
-//       .catch(() => res.status(400).json({ message: "vous likez déjà ce produit" }));
-
-//   }
+}
 
 
-//   // _id: sauceId,
-//   //   usersLiked = usersLiked++
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
