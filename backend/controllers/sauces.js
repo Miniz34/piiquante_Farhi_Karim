@@ -86,7 +86,7 @@ exports.likeSauce = (req, res, next) => {
       { _id: sauceId },
       {
         $push: { usersLiked: userId },
-        $inc: { likes: +1 }
+        $inc: { likes: 1 }
       }
 
     )
@@ -119,7 +119,7 @@ exports.likeSauce = (req, res, next) => {
 
           sauce.updateOne(
             { _id: sauceId },
-            { $pull: { usersLiked: { $in: [userId] } } },
+            { $pull: { usersLiked: userId } },
             { $inc: { likes: -1 } }
 
 
